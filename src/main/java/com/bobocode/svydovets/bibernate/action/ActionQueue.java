@@ -1,6 +1,7 @@
 package com.bobocode.svydovets.bibernate.action;
 
 import com.bobocode.svydovets.bibernate.action.key.EntityKey;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -24,15 +25,8 @@ public class ActionQueue {
      * @param action the action to add to the queue
      */
     public void addAction(EntityKey<?> entityKey, Action action) {
-        actionsMap.compute(
-                entityKey,
-                (k, actionList) -> {
-                    if (actionList == null) {
-                        actionList = new ArrayList<>();
-                    }
-                    actionList.add(action);
-                    return actionList;
-                });
+        List<Action> actions = actionsMap.computeIfAbsent(entityKey, k -> new ArrayList<>());
+        actions.add(action);
     }
 
     /** Executes all actions in the queue in the correct order (insert, update, remove). */
