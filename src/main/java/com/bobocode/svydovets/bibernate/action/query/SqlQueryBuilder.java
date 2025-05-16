@@ -13,7 +13,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -167,12 +166,13 @@ public class SqlQueryBuilder {
     public static String addVersionToWhereConditionIfNeeds(
             String originSqlQuery, Class<?> entityType) {
         return EntityUtils.findVersionField(entityType)
-                .flatMap(
-                        field ->
-                                Optional.of(
-                                        originSqlQuery.replace(
-                                                ";", String.format(VERSION_WHERE_CONDITION, field.getName()))))
+                .map(field -> getReplacedWhereCondition(originSqlQuery, field))
                 .orElse(originSqlQuery);
+    }
+
+    private static String getReplacedWhereCondition(String originSqlQuery, Field field) {
+        String whereCondition = String.format(VERSION_WHERE_CONDITION, field.getName());
+        return originSqlQuery.replace(";", whereCondition);
     }
 
     public static <T> String createSelectAllByColumn(Class<T> entityType, Field field) {
